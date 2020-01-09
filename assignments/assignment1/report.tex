@@ -50,8 +50,10 @@
 % \usepackage{amsthm}
 \title{ECE 421 \\
 Assignment 1}
-  \author{Arun Woosaree\\
-  XXXXXXX}
+\author{Arun Woosaree\\
+XXXXXXX
+}
+
 %actual document
 \begin{document}
 
@@ -86,11 +88,53 @@ void add(&int x, int y, int z){
   *x = y + z;
 }
 \end{minted}
-%\begin{adjustbox}{width=\textwidth}
-%\lstinputlisting[language=Python]{stationaryprob.py}
-%\end{adjustbox}
-%\vspace{2cm}
+\todo{idk}
 
 
+\section{}
 
+\subsection{}
+\begin{itemize}
+  \item sqrtx takes an input, and returns the squared value of the input
+  \item imparativefun returns the sum of squares of its input, which is a list of numbers
+  \item functionalfun does the same thing, but does so in a functional manner instead of an imparative way
+\end{itemize}
+
+\subsection{}
+I would argue that te functionalfun is more maintainable as it's easier to
+understand what the function is doing. Also, even though the functions do the
+same thing, functionalfun there is less to read?? \todo{}
+
+\subsection{}
+\begin{minted}[]{fsharp}
+let fourthpower x = sqrt sqrt x
+\end{minted}
+
+\section{}
+\begin{itemize}
+  \item changing the file system is a side effect, so it is not a pure function
+  \item inserting a record -- if we're talking about a function that makes a
+    database request, then it can be functional, however, if we're talking about
+    the function that the database internally uses, the database would be
+    updated, which means that a value is being mutated, so therefore not a pure
+    function
+  \item making an http call can be a pure function
+  \item printing to the screen requires a side-effect, namely I/O, so it is not
+    a pure function
+  \item querying the DOM can be a pure function
+  \item accessing the system state can be a pure function, as long as the state
+    is not being mutated
+  \item pure functions return the same output every time for a given set of
+    inputs. Any randomness violates this, so Math.random() is not a pure
+    function
+\end{itemize}
+
+
+\section{}
+\inputminted[]{rust}{7.rs}
+
+\section{}
+
+\section{}
+my guess is that haskell is fine with it and rustc goes REEEEEEEEEEEEEEEEEEEE
 \end{document}
