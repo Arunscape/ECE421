@@ -1,5 +1,7 @@
 use rand::prelude::*;
 
+mod part3;
+
 fn main() {
     let mut rng = thread_rng();
     if rng.gen() {
@@ -9,4 +11,8 @@ fn main() {
     println!("y is: {}", y);
     println!("Random Number between 0 and 9: {}", rng.gen_range(0, 10));
     }
+
+    println!("{}", part3::function());
+    println!("{}", part3::function());
+    println!("{}", part3::function());
 }
