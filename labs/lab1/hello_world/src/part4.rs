@@ -12,7 +12,7 @@ pub fn prime_fun() {
         for j in i..list_of_primes.len() {
             current_sum += list_of_primes[j];
            if j-i > len && list_of_primes.contains(&current_sum) {
-               len = j-i;
+               len = j-i + 1;
                sum = current_sum;
                start=i;
                end=j;
