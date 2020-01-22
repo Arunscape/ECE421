@@ -12,7 +12,7 @@ fn main() {
     println!("y is: {}", y);
     println!("Random Number between 0 and 9: {}", rng.gen_range(0, 10));
     }
-
+    
     println!("{}", part3::function(Integer::from(10)));
     println!("{}", part3::function(Integer::from(20)));
     println!("{}", part3::function(Integer::from(30)));
