@@ -68,21 +68,29 @@ Data is immutable, and as a result,
 functions have no 'side-effects'.
 
 \section{}
-\todo{Explain what it does}
 The function is summing the numbers from 0 to 100.
 Right at the beginning, we see that the program produces a side-effect, which
 is using IO to output some data. This contradicts the idea of a 'purely'
 functional language. However, if a program never has side effects, it would be
-pretty boring. \dots \todo{say something more about side effect}
-
-We see that the program is written in a declarative style, even though Haskell
-is generally considered a purely functional language\dots
+pretty boring.
+Also, 
+we see that the program is written in an imparative style, even though Haskell
+is generally considered a purely functional language where code is usually
+written in a declarative style. The looping part of the program is recursive,
+and the value i is updated using a monad. Ignoring the side-effects, the program
+is purely functional. 
 
 
 \section{}
-Immutability is nice, because it makes things predictable\dots
+Immutability is nice, because it makes things predictable.
+For example, in concurrent applications, shared data is a lot more predictable,
+since nothing can mutate the data. 
+Immutability also helps with producing more readable code, because values don't
+change. Also, when you call a function, you know that it has not mutated
+anything. This is what makes things more predictable.
 
 \section{}
+\subsection{}
 \begin{minted}[]{c}
   int x = y + z;
 \end{minted}
@@ -90,11 +98,13 @@ Immutability is nice, because it makes things predictable\dots
 
 \subsection{}
 \begin{minted}[]{haskell}
-  let x = y + z;
+  let x = y + z
 \end{minted}
 
 \subsection{}
-All languages that are useful I guess, allow for mutation.
+All languages must allow for mutability at some level, otherwise they would
+never produce useful output. When code is compiled, it generates mutable machine
+code since that's what computers (currently) understand.
 \section{}
 
 \subsection{}
@@ -105,41 +115,52 @@ All languages that are useful I guess, allow for mutation.
 \end{itemize}
 
 \subsection{}
-I would argue that te functionalfun is more maintainable as it's easier to
+I would argue that the functionalfun is more maintainable as it's easier to
 understand what the function is doing. Also, even though the functions do the
 same thing, functionalfun there is less to read?? \todo{}
 
 \subsection{}
 \begin{minted}[]{fsharp}
-let fourthpower x = sqrt sqrt x
+  let fourthpower x = x |> sqrt |> sqrt
 \end{minted}
 
 \section{}
+\inputminted[]{rust}{7.rs}
+
+\section{}
+\inputminted[]{rust}{8.rs}
+
+\section{}
 The Scheme function returns a sum of the number of leaf nodes in a nested list
-that are not \#f.
-It does so recursively, the base case is an empy list, which in that case it
-will return 0.
+that are not \#f. That is, no matter how nested the elements in the lists are,
+it returns a count of all the elements in a list, not including \#f.
+%It does so recursively.
+%If the empty list is passed in, the function x will return 0.
+%Next, if the input is a pair and car isn't a list:\\
+%   if car is \#f, then recurse on cdr\\
+%   else recurse on cdr and add 1\\
+%
+%   lastly, recurse on car and cdr, and add the results.
 
-Next, if the input is a pair and car isn't a list:\\
-   if car is \#f, then recurse on cdr\\
-   else recurse on cdr and add 1\\
 
-   lastly, recurse on car and cdr, and add the results.
+
 
 \section{}
 \begin{itemize}
   \item changing the file system is a side effect, so it is not a pure function
-  \item inserting a record -- if we're talking about a function that makes a
-    database request, then it can be functional, however, if we're talking about
-    the function that the database internally uses, the database would be
-    updated, which means that a value is being mutated, so therefore not a pure
-    function
-  \item making an http call can be a pure function
+  \item inserting a record cannot be a pure function, because it results in the
+    database mutating
+  \item making an http call cannot be a pure function because you cannot
+    guarantee the same thing will be returned on every function call. The status
+    message can change, the server could go down, etc.
   \item printing to the screen requires a side-effect, namely I/O, so it is not
     a pure function
-  \item querying the DOM can be a pure function
-  \item accessing the system state can be a pure function, as long as the state
-    is not being mutated
+  \item querying the DOM can be a pure function, provided the DOM is an input
+    parameter to the function, and the output of the function depends only on
+    this input, and if the function does not mutate anything
+  \item the system state will be different (for example, the time will be
+    different) on every call to the function, so it
+    will return something different each time, so it cannot be a pure function
   \item pure functions return the same output every time for a given set of
     inputs. Any randomness violates this, so Math.random() is not a pure
     function
@@ -147,10 +168,13 @@ Next, if the input is a pair and car isn't a list:\\
 
 
 \section{}
-\inputminted[]{rust}{7.rs}
+\subsection{}
+The ghc compiler produces no error when presented this code. This is because
+Haskell supports partial function applications and incomplete pattern matching.
+The program will compile with no errors by default.
 
-\section{}
-
-\section{}
-my guess is that haskell is fine with it and rustc goes REEEEEEEEEEEEEEEEEEEE
+\subsection{}
+The Rust compiler will scream at you for this. It will catch that the pattern
+Blue defined by Colour is not covered in the pattern matching statement and tell
+you to fix it. Till then, it will refuse to compile the program.
 \end{document}
