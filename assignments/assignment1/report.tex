@@ -77,8 +77,10 @@ Also,
 we see that the program is written in an imparative style, even though Haskell
 is generally considered a purely functional language where code is usually
 written in a declarative style. The looping part of the program is recursive,
-and the value i is updated using a monad. Ignoring the side-effects, the program
-is purely functional. 
+and the value i is updated using a monad. The program still is functional,
+in the sense that the function does the same thing every time, and the dirty
+work of updating variables is achieved with the monad. Also, it does not mutate
+anything outside of the function.
 
 
 \section{}
@@ -94,7 +96,6 @@ anything. This is what makes things more predictable.
 \begin{minted}[]{c}
   int x = y + z;
 \end{minted}
-\todo{idk}
 
 \subsection{}
 \begin{minted}[]{haskell}
@@ -111,39 +112,27 @@ code since that's what computers (currently) understand.
 \begin{itemize}
   \item sqrtx takes an input, and returns the squared value of the input
   \item imparativefun returns the sum of squares of its input, which is a list of numbers
-  \item functionalfun does the same thing, but does so in a functional manner instead of an imparative way
+  \item functionalfun does the same thing, but does so in a declarative manner instead of an imparative way
 \end{itemize}
 
 \subsection{}
-I would argue that the functionalfun is more maintainable as it's easier to
-understand what the function is doing. Also, even though the functions do the
-same thing, functionalfun there is less to read?? \todo{}
+\begin{itemize}
+  \item there seems to be no difference in reliability between the two
+    implementations
+  \item there may be a slight difference in efficiency between the two
+    implementations, but it is probably negligible
+  \item I would argue that the functionalfun is more maintainable as it's easier to
+understand what the function is doing. Even though the functions do the
+same thing, functionalfun has less ``clutter'' around it, which is what makes it
+easier to understand.
+\item there will be no difference in portability between the two
+  implementations.
+\end{itemize}
 
 \subsection{}
 \begin{minted}[]{fsharp}
   let fourthpower x = x |> sqrt |> sqrt
 \end{minted}
-
-\section{}
-\inputminted[]{rust}{7.rs}
-
-\section{}
-\inputminted[]{rust}{8.rs}
-
-\section{}
-The Scheme function returns a sum of the number of leaf nodes in a nested list
-that are not \#f. That is, no matter how nested the elements in the lists are,
-it returns a count of all the elements in a list, not including \#f.
-%It does so recursively.
-%If the empty list is passed in, the function x will return 0.
-%Next, if the input is a pair and car isn't a list:\\
-%   if car is \#f, then recurse on cdr\\
-%   else recurse on cdr and add 1\\
-%
-%   lastly, recurse on car and cdr, and add the results.
-
-
-
 
 \section{}
 \begin{itemize}
@@ -166,12 +155,38 @@ it returns a count of all the elements in a list, not including \#f.
     function
 \end{itemize}
 
+\section{}
+\inputminted[]{rust}{7.rs}
+
+\section{}
+\inputminted[]{rust}{8.rs}
+
+\section{}
+The Scheme function returns a sum of the number of leaf nodes in a nested list
+that are not \#f. That is, no matter how nested the elements in the lists are,
+it returns a count of all the elements in a list, and its nested lists not 
+including \#f.
+%It does so recursively.
+%If the empty list is passed in, the function x will return 0.
+%Next, if the input is a pair and car isn't a list:\\
+%   if car is \#f, then recurse on cdr\\
+%   else recurse on cdr and add 1\\
+%
+%   lastly, recurse on car and cdr, and add the results.
+
+
+
+
+
+
 
 \section{}
 \subsection{}
-The ghc compiler produces no error when presented this code. This is because
-Haskell supports partial function applications and incomplete pattern matching.
-The program will compile with no errors by default.
+The GHC compiler produces no error when presented this code. This is because
+Haskell supports things like partial function applications and incomplete pattern matching.
+The program will compile with no errors by default, but the flag
+\texttt{-fwarn-incomplete-patterns}
+can be used to show a warning at compile time.
 
 \subsection{}
 The Rust compiler will scream at you for this. It will catch that the pattern
