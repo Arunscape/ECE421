@@ -3,7 +3,7 @@ struct Bag<T> {
 }
 
 #[allow(non_snake_case)]
-fn BagSize<T>(_bag: Bag<T>) -> usize {
+fn BagSize<T>(_bag: Bag<T>) -> usize { 
     std::mem::size_of::<Bag<T>>()
 }
 

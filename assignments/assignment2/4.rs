@@ -14,6 +14,7 @@ fn main() {
     }
     { 
         let vec1_2=vec![vec1, vec2];
+    println!("{}", size_of_val(&vec1_2));
         let vec_flattened = vec1_2.iter().flatten(); 
         println!("size of vec_flattened = {} bytes", size_of_val(&vec_flattened));
     }
