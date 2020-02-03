@@ -1,7 +1,17 @@
-todo
-Explain the results obtained in Question 4 and 5 while illustrating the contents of both the
-stack and the heap in each case. [i.e., How does Rust model the iterators in each case?]
+\subsection{}
+In question 4, most of the variables are on the stack, while the values in the
+vectors are on the heap. Below is an attempt to demonstrate this. The iterators
+are basically structs containing references to the actual values on the heap,
+coupled with something that allows the iterator to keep track of its state, so
+it knows where to go next.
 
-in number 5 the values are stored on the heap, and we are printing the size of
-the pointer which points to the area on the heap. That's why in number 5, the
-size of the value is always 8 bytes
+\includepdf[pages=-]{images/6p1.jpg}
+
+\subsection{}
+In question 5, almost everything is stored on the heap.
+Structs that were on the stack in question 4 are now instead on the heap, and we
+have pointers on the stack pointing to them. That's why in number 5, the
+size of the value is always 8 bytes, since 8 byte are needed to point to a
+location in memory on a 64-bit machine.
+
+\includepdf[pages=-]{images/6p2.jpg}

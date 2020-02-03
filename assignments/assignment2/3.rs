@@ -9,12 +9,12 @@ struct Bag_u32 {
 }
 
 #[allow(non_snake_case)]
-fn BagSize_u8 (_bag: Bag_u8) -> usize{
+fn BagSize_u8 (_: Bag_u8) -> usize{
     std::mem::size_of::<Bag_u8>()
 }
 
 #[allow(non_snake_case)]
-fn BagSize_u32 (_bag: Bag_u32) -> usize{
+fn BagSize_u32 (_: Bag_u32) -> usize{
     std::mem::size_of::<Bag_u32>()
 }
 
