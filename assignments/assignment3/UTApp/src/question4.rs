@@ -39,11 +39,11 @@ pub fn test_random_non_solvable_quadratic() {
     }
 }
 
-pub fn get_three_random_numbers() -> (f64, f64, f64){
+fn get_three_random_numbers() -> (f64, f64, f64){
     let mut rng = thread_rng();
     (rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
 }
 
-pub fn determinant_valid(a: f64, b: f64, c: f64) -> bool {
+fn determinant_valid(a: f64, b: f64, c: f64) -> bool {
     (b.powf(2.0) - 4.0 * a * c) < 0.0
 }
