@@ -1,14 +1,15 @@
 use super::*;
 use rand::{thread_rng, Rng};
 use roots::{Roots, find_roots_quadratic};
+use hamcrest2::prelude::*;
 
 #[test]
 pub fn test_basic_roots() {
-       assert_eq!(calculator::get_roots(1.0, 3.0, -4.0), Roots::Two([-4.0, 1.0]));
+       assert_that!(calculator::get_roots(1.0, 3.0, -4.0), eq(Roots::Two([-4.0, 1.0])));
 }
 #[test]
 pub fn test_single_root() {
-       assert_eq!(calculator::get_roots(1.0, -4.0, 4.0), Roots::One([2.0]));
+       assert_that!(calculator::get_roots(1.0, -4.0, 4.0), eq(Roots::One([2.0])));
 }
 #[test]
 pub fn test_random_solvable_quadratic() {
@@ -20,7 +21,7 @@ pub fn test_random_solvable_quadratic() {
             continue;
         }
 
-        assert_eq!(calculator::get_roots(a, b, c), find_roots_quadratic(a, b, c));
+        assert_that!(calculator::get_roots(a, b, c), eq(find_roots_quadratic(a, b, c)));
         return;
     }
 }
@@ -34,7 +35,7 @@ pub fn test_random_non_solvable_quadratic() {
             continue;
         }
 
-        assert_eq!(calculator::get_roots(a, b, c), Roots::No([]));
+        assert_that!(calculator::get_roots(a, b, c), eq(Roots::No([])));
         return;
     }
 }

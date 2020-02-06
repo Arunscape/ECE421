@@ -1,0 +1,11 @@
+[package]
+name = "ut_app"
+version = "0.1.0"
+authors = ["nasha"]
+edition = "2018"
+
+[dependencies]
+rand = "0.7.0"
+num = "0.2.1"
+roots = "0.0.6"
+hamcrest2 = "0.3.0"
