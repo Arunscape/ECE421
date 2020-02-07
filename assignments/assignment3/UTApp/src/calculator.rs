@@ -1,6 +1,6 @@
 use std::ops::{Add, Sub, Mul, Div};
 use num::Float;
-use roots::{find_roots_quadratic, FloatType, Roots};
+use roots::{find_roots_quadratic, Roots, FloatType};
     
 pub fn add<T>(x: T, y: T) -> T
 where T: Add<Output=T> {
