@@ -1,6 +1,5 @@
 use std::f64::INFINITY;
 use num::PrimInt;
-use std::ops::{Mul, Add, Sub};
 
 const INCOME_1: f64 = 1.0;
 const INCOME_2: f64 = 10000.0;
