@@ -18,7 +18,7 @@ pub fn test_random_solvable_quadratic() {
     loop {
         let (a, b, c) = get_three_random_numbers();
 
-        if !determinant_valid(a, b, c) {
+        if determinant_invalid(a, b, c) {
             continue;
         }
 
@@ -34,7 +34,7 @@ pub fn test_random_non_solvable_quadratic() {
     loop {
         let (a, b, c) = get_three_random_numbers();
 
-        if determinant_valid(a, b, c) {
+        if !determinant_invalid(a, b, c) {
             continue;
         }
 
@@ -49,6 +49,6 @@ fn get_three_random_numbers() -> (f64, f64, f64) {
     (rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
 }
 #[cfg(test)]
-fn determinant_valid(a: f64, b: f64, c: f64) -> bool {
+fn determinant_invalid(a: f64, b: f64, c: f64) -> bool {
     (b.powf(2.0) - 4.0 * a * c) < 0.0
 }
