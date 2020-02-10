@@ -26,26 +26,29 @@ struct TreeNode<'a> {
 https://gist.github.com/aidanhs/5ac9088ca0f6bdd4a370
  */
 
-impl <'a> TreeNode<'a> {
-
+impl<'a> TreeNode<'a> {
     pub fn insert_node(&mut self, data: &'a str) {
         if self.data == data {
-            return
+            return;
         }
 
-        let new_node = if data < self.data { 
-            &mut self.left_child 
-        } else { 
-            &mut self.right_child 
+        let new_node = if data < self.data {
+            &mut self.left_child
+        } else {
+            &mut self.right_child
         };
 
         match new_node {
             &mut Some(ref mut child) => child.insert_node(data),
             &mut None => {
-                let node = TreeNode { data, left_child: None, right_child: None };
+                let node = TreeNode {
+                    data,
+                    left_child: None,
+                    right_child: None,
+                };
                 let boxed = Some(Box::new(node));
                 *new_node = boxed;
-            } 
+            }
         }
     }
 }
@@ -62,48 +65,63 @@ enum Tree<T: Ord> {
 
 /* Empty makes it so that instead of using an option, the tree node can either
  * be a node or an Empty type. The nice thing about this one is that it is immutable
- * and the data can be of any type that implements the Ord trait. 
+ * and the data can be of any type that implements the Ord trait.
  */
 impl<T: Ord> Tree<T> {
-    
     fn insert_node(&mut self, new_data: T) {
-	    match self {
-	        &mut Tree::Node { ref data, ref mut left_child, ref mut right_child } => {
-		        match new_data.cmp(data) {
-			        std::cmp::Ordering::Less => right_child.insert_node(new_data),
-			        std::cmp::Ordering::Greater => left_child.insert_node(new_data),
-			        _  => return
-			    }
-		    },
-		    &mut Tree::Empty => {
-			    *self = Tree::Node { 
-                    data: new_data, 
-                    left_child: Box::new(Tree::Empty), 
-                    right_child: Box::new(Tree::Empty) 
+        match self {
+            &mut Tree::Node {
+                ref data,
+                ref mut left_child,
+                ref mut right_child,
+            } => match new_data.cmp(data) {
+                std::cmp::Ordering::Less => right_child.insert_node(new_data),
+                std::cmp::Ordering::Greater => left_child.insert_node(new_data),
+                _ => return,
+            },
+            &mut Tree::Empty => {
+                *self = Tree::Node {
+                    data: new_data,
+                    left_child: Box::new(Tree::Empty),
+                    right_child: Box::new(Tree::Empty),
                 }
-		    },
-	    };
-	}
+            }
+        };
+    }
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 
     #[test]
     fn test_treenode() {
-        let mut x = TreeNode { data: "m", left_child: None, right_child: None };
+        let mut x = TreeNode {
+            data: "m",
+            left_child: None,
+            right_child: None,
+        };
         x.insert_node("z");
         x.insert_node("b");
         x.insert_node("c");
-        assert!(x == TreeNode {
-            data: "m",
-            left_child: Some(Box::new(TreeNode {
-                data: "b",
-                left_child: None,
-                right_child: Some(Box::new(TreeNode { data: "c", left_child: None, right_child: None })),
-            })),
-            right_child: Some(Box::new(TreeNode { data: "z", left_child: None, right_child: None })),
-        });
+        assert!(
+            x == TreeNode {
+                data: "m",
+                left_child: Some(Box::new(TreeNode {
+                    data: "b",
+                    left_child: None,
+                    right_child: Some(Box::new(TreeNode {
+                        data: "c",
+                        left_child: None,
+                        right_child: None
+                    })),
+                })),
+                right_child: Some(Box::new(TreeNode {
+                    data: "z",
+                    left_child: None,
+                    right_child: None
+                })),
+            }
+        );
     }
 }
