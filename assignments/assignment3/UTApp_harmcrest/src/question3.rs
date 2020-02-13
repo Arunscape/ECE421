@@ -1,6 +1,6 @@
 use super::*;
-use rand::{thread_rng, Rng};
 use hamcrest2::prelude::*;
+use rand::{thread_rng, Rng};
 
 #[test]
 pub fn test_random_positive_square_root() {

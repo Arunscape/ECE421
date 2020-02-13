@@ -1,6 +1,6 @@
-use rand::{thread_rng, Rng};
 use super::*;
 use hamcrest2::prelude::*;
+use rand::{thread_rng, Rng};
 
 #[test]
 pub fn basic_multiply() {
@@ -15,7 +15,7 @@ pub fn multiply_random_numbers() {
     let mut rng = thread_rng();
     let x: f64 = rng.gen();
     let y: f64 = rng.gen();
-    assert_that!(calculator::multiply(x,y), eq(x*y));
+    assert_that!(calculator::multiply(x, y), eq(x * y));
 }
 
 #[test]
@@ -31,6 +31,5 @@ pub fn divide_random_numbers() {
     let mut rng = thread_rng();
     let x: f64 = rng.gen();
     let y: f64 = rng.gen();
-    assert_that!(calculator::divide(x,y), eq(x/y));
+    assert_that!(calculator::divide(x, y), eq(x / y));
 }
-   

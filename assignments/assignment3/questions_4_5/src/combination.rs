@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use num::PrimInt;
 use std::iter::Product;
 
@@ -42,12 +43,52 @@ mod test {
 
     #[test]
     fn a_b_integers() {
+        let a: i8 = 2;
+        let b: i8 = 2;
+        assert_impl!(PrimInt: i8);
+        combination(a, b);
+        let a: i16 = 2;
+        let b: i16 = 2;
+        assert_impl!(PrimInt: i16);
+        combination(a, b);
+        let a: i32 = 2;
+        let b: i32 = 2;
+        assert_impl!(PrimInt: i32);
+        combination(a, b);
         let a: i64 = 2;
         let b: i64 = 2;
-
         assert_impl!(PrimInt: i64);
         combination(a, b);
-        combination_wrapper(a as f64, b as f64);
+        let a: i128 = 2;
+        let b: i128 = 2;
+        assert_impl!(PrimInt: i128);
+        combination(a, b);
+        let a: u8 = 2;
+        let b: u8 = 2;
+        assert_impl!(PrimInt: u8);
+        combination(a, b);
+        let a: u16 = 2;
+        let b: u16 = 2;
+        assert_impl!(PrimInt: u16);
+        combination(a, b);
+        let a: u32 = 2;
+        let b: u32 = 2;
+        assert_impl!(PrimInt: u32);
+        combination(a, b);
+        let a: u64 = 2;
+        let b: u64 = 2;
+        assert_impl!(PrimInt: u64);
+        combination(a, b);
+        let a: u128 = 2;
+        let b: u128 = 2;
+        assert_impl!(PrimInt: u128);
+        combination(a, b);
+
+        let a: f64 = 2.0;
+        let b: f64 = 2.0;
+        assert_eq!(a.fract(), 0.0);
+        assert_eq!(b.fract(), 0.0);
+        combination_wrapper(a, b);
     }
 
     #[test]

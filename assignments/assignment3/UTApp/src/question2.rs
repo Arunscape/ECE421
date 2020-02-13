@@ -1,5 +1,5 @@
-use rand::{thread_rng, Rng};
 use super::*;
+use rand::{thread_rng, Rng};
 
 #[test]
 pub fn basic_multiply() {
@@ -14,7 +14,7 @@ pub fn multiply_random_numbers() {
     let mut rng = thread_rng();
     let x: f64 = rng.gen();
     let y: f64 = rng.gen();
-    assert_eq!(calculator::multiply(x,y), x * y);
+    assert_eq!(calculator::multiply(x, y), x * y);
 }
 
 #[test]
@@ -30,6 +30,5 @@ pub fn divide_random_numbers() {
     let mut rng = thread_rng();
     let x: f64 = rng.gen();
     let y: f64 = rng.gen();
-    assert_eq!(calculator::divide(x,y), x / y);
+    assert_eq!(calculator::divide(x, y), x / y);
 }
-   
