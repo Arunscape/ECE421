@@ -30,9 +30,16 @@ struct Point {
 }
 
 The mutability of a struct is in its binding:
-ex: let mut Point = { x: 1, y: 2 };
+ex: let mut point = { x: 1, y: 2 };
 
-But, we can use Cell<T> to emulate field level mutability as seen above.
+But, if we insist Point is declared immutable,
+ex: Point {
+    x: i32,
+    y: Cell<i32>
+}
+let point = { x: 1, y: Cell::new(2) }
+
+We can use Cell<T> to emulate field level mutability as seen above.
 A type has interior mutability if its internal state can be changed through a
 shared reference to it. Cell<T> allows this functionality, but this is done in
 a single threaded way since it is not thread safe.

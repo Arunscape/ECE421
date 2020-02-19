@@ -34,7 +34,7 @@ impl<T> LinkedList<T> {
 
     pub fn push_back(self, t: T) -> Self {
         match self {
-            Self::Head(curr, next) => next.push_back(t).push(curr),
+            Self::Head(car, cdr) => cdr.push_back(t).push(car),
             Self::Tail => Self::new(t),
         }
     }
@@ -48,10 +48,10 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Head(curr, next) => {
-                write!(f, "{}", curr).unwrap();
-                match **next {
-                    Self::Head(_, _) => write!(f, "=>{}", next),
+            Self::Head(car, cdr) => {
+                write!(f, "{}", car).unwrap();
+                match **cdr {
+                    Self::Head(_, _) => write!(f, "=>{}", cdr),
                     Self::Tail => Ok(()),
                 }
             }
@@ -113,5 +113,27 @@ mod test {
         let list = linkedlist! {2=>3=>5=>7};
         let list = list.push_back(1);
         assert_eq!(linkedlist! {2=>3=>5=>7=>1}, list);
+    }
+
+    #[test]
+    fn it_works() {
+        let mut l = LinkedList::new(3);
+        l = l.push(4);
+        assert_eq!(
+            l,
+            LinkedList::Head(4, Box::new(LinkedList::Head(3, Box::new(LinkedList::Tail))))
+        );
+
+        l = l.push_back(2);
+        assert_eq!(
+            l,
+            LinkedList::Head(
+                4,
+                Box::new(LinkedList::Head(
+                    3,
+                    Box::new(LinkedList::Head(2, Box::new(LinkedList::Tail)))
+                ))
+            )
+        );
     }
 }
