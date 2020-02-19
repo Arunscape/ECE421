@@ -1,6 +1,7 @@
 use crate::linkedlist::LinkedList;
 use rand::{rngs::ThreadRng, thread_rng, Rng};
 
+
 pub struct SkipList<T> {
     //add your code here
     length: usize,
