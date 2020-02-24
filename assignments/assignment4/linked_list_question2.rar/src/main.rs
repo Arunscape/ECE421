@@ -1,6 +1,82 @@
-fn main() {
-    println!("Hello, world!");
+use im::list::{cons, List};
+use std::fmt;
+
+// makes testing more expressive
+// allows the creation of a linked list
+// ex: linkedlist!{1=>2=>3=>4=>5}
+#[macro_export]
+macro_rules! linkedlist {
+    ( $x:expr ) => {
+        LinkedList::new($x)
+    };
+    ( $head:expr $( => $rest:expr )* ) => {
+        linkedlist!($($rest)=>*).push($head)
+    };
 }
+
+fn main() {
+    let list = linkedlist! {2=>3=>5=>7};
+    println!("For example, if we have a list as follows:");
+    println!("{}", list);
+    let list = list.push(1);
+    println!(".push(1) should result in the following list:");
+    println!("{}", list);
+
+    println!();
+
+    println!("Similarly, if we have a list as follows:");
+    let list = linkedlist! {2=>3=>5=>7};
+    println!("{}", list);
+    let list = list.push_back(1);
+    println!(".push_back(1) should result in the following list:");
+    println!("{}", list);
+}
+
+#[derive(Debug, PartialEq)]
+struct LinkedList<T> {
+    list: List<T>,
+}
+
+impl<T> LinkedList<T> {
+    pub fn empty() -> Self {
+        Self { list: List::new() }
+    }
+
+    pub fn new(t: T) -> Self {
+        Self {
+            list: List::new().cons(t),
+        }
+    }
+
+    pub fn push(self, t: T) -> Self {
+        Self {
+            list: self.list.cons(t),
+        }
+    }
+
+    pub fn push_back(self, t: T) -> Self {
+        // snoc is cons spelled backwards
+        Self {
+            list: self.list.snoc(t),
+        }
+    }
+}
+
+// so we can print the linked list in this format
+// 1=>2=>3=>4=>5
+impl<T> fmt::Display for LinkedList<T>
+where
+    T: fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.list.head().unwrap());
+        for thing in self.list.iter().skip(1) {
+            write!(f, "=>{}", thing).unwrap();
+        }
+        Ok(())
+    }
+}
+
 // from: https://docs.rs/im/5.0.0/src/im/list.rs.html#83
 /*
 The words `car` and `cdr` come from Lisp, and were the original
@@ -26,3 +102,4 @@ elements dropped. Pronunciation goes like this: `cadr` is, obviously,
 `cdr` of the `cdr`) is 'cadudder'. It can get a little subtle for the
 untrained ear.
 */
+
