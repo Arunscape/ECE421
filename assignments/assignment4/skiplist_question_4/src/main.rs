@@ -1,5 +1,14 @@
 mod linkedlist;
 mod skiplist;
 
-fn main() {}
+use crate::skiplist::SkipList;
+
+fn main() {
+    let mut list: SkipList<usize> = SkipList::new();
+
+    println!("{:?}", list);
+
+    list.push(30);
+    println!("{:?}", list);
+}
 
