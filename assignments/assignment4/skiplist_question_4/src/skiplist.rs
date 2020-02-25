@@ -1,22 +1,20 @@
-use std::{cmp, fmt, mem};
+use std::{cmp, fmt, iter, mem};
 
 use rand::{rngs::ThreadRng, thread_rng, Rng};
 
 #[derive(Clone, Debug)]
 pub struct SkipList<T> {
     head: Box<SkipNode<T>>,
-    len: usize,
+    level: usize,
+    length: usize,
     level_generator: LevelGenerator,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub struct SkipNode<D> {
-    pub data: Option<D>, // only head can be none
-    pub level: usize,
-    pub next: Option<Box<SkipNode<D>>>,
-    pub back: Option<*mut SkipNode<D>>,
-    pub links: Vec<Option<*mut SkipNode<D>>>, // link to next node at level
-    pub length_links: Vec<usize>,
+    pub data: Option<D>,                          // only head can be none
+    pub forwards: Vec<Option<*mut SkipNode<D>>>,  // link to next node at level
+    pub backwards: Vec<Option<*mut SkipNode<D>>>, // link to back node at level
 }
 
 #[derive(Clone, Debug)]
@@ -45,40 +43,42 @@ impl RandomLevel for LevelGenerator {
 }
 
 impl<D> SkipNode<D> {
-    pub fn give_head() -> Self {
-        SkipNode {
-            data: None,
-            level: 0,
-            next: None,
-            back: None,
-            links: std::iter::repeat(None).take(0).collect(),
-            length_links: std::iter::repeat(0).take(0).collect(),
-        }
-    }
-
     // TODO initialize next and back
     pub fn new(data: D, level: usize) -> Self {
         SkipNode {
             data: Some(data),
-            level,
-            next: None,
-            back: None,
-            links: std::iter::repeat(None).take(level + 1).collect(),
-            length_links: std::iter::repeat(0).take(level + 1).collect(),
+            forwards: std::iter::repeat(None).take(level + 1).collect(),
+            backwards: std::iter::repeat(None).take(level + 1).collect(),
         }
     }
-
-    /*
-    pub fn into_inner(self) -> Option<V> {
-        if self.value.is_some() {
-            Some(self.value.unwrap())
+    pub fn give_head(level: usize) -> Self {
+        SkipNode {
+            data: None,
+            forwards: std::iter::repeat(None).take(level + 1).collect(),
+            backwards: std::iter::repeat(None).take(level + 1).collect(),
         }
-        None
     }
-    */
 
     pub fn is_head(&self) -> bool {
-        self.back.is_none()
+        self.backwards[0].is_none()
+    }
+
+    pub fn level(&self) -> usize {
+        self.forwards.len() - 1
+    }
+
+    pub fn get_right(&self, level: usize) -> Option<*mut SkipNode<D>> {
+        match self.forwards.get(level) {
+            Some(&ptr) => ptr,
+            None => None,
+        }
+    }
+    pub fn set_right(&mut self, n: Option<*mut SkipNode<D>>, level: usize) {
+        if let Some(_) = self.forwards.get(level) {
+            self.forwards[level] = n;
+        } else {
+            self.forwards.insert(level, n);
+        }
     }
 }
 
@@ -87,19 +87,20 @@ where
     D: fmt::Display,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
-        if let Some(ref v) = self.data {
-            write!(f, "{}", v)
+        if let Some(d) = &self.data {
+            write!(f, "{}", d)
         } else {
             Ok(())
         }
     }
 }
 
-impl<T> SkipList<T> {
+impl<T: cmp::Ord> SkipList<T> {
     pub fn new() -> Self {
         SkipList {
-            head: Box::new(SkipNode::give_head()),
-            len: 0,
+            head: Box::new(SkipNode::give_head(1)),
+            length: 0,
+            level: 0,
             level_generator: LevelGenerator::new(),
         }
     }
@@ -107,48 +108,59 @@ impl<T> SkipList<T> {
     pub fn push(&mut self, value: T) {
         // add an element with value T (strat from the beginning of the skiplist).
         unsafe {
-            self.len += 1;
+            self.length += 1;
+
+            // first insertion
+            if self.length == 0 {
+                let new_node = Box::new(SkipNode::new(value, 0));
+                let new_node_ptr: *mut SkipNode<T> = mem::transmute_copy(&new_node);
+                (*self.head).forwards.push(Some(new_node_ptr));
+                return;
+            }
+
             let level = self.level_generator.random_level();
-            let mut new_node = Box::new(SkipNode::new(value, level));
+            if self.level < level {
+                self.level = level
+            }
+
+            // make the head have an appropriate number of levels
+            while (*self.head).forwards.len() - 1 < level {
+                (*self.head).forwards.push(None);
+            }
+
+            let new_node = Box::new(SkipNode::new(value, level));
             let new_node_ptr: *mut SkipNode<T> = mem::transmute_copy(&new_node);
-            // At each level, `node` moves down the list until it is just prior
-            // to where the node will be inserted.  As this is parsed top-down,
-            // the link lengths can't yet be adjusted and the insert nodes are
-            // stored in `insert_nodes`.
-            let mut node: *mut SkipNode<T> = mem::transmute_copy(&self.head);
-            let mut insert_nodes: Vec<*mut SkipNode<T>> = Vec::with_capacity(new_node.level);
+            self.update_list_pointers(new_node_ptr, level);
+        }
+    }
 
-            let mut index_sum = 0;
-            let mut level = level;
-            while level > 0 {
-                level -= 1;
+    fn update_list_pointers(&self, n: *mut SkipNode<T>, level: usize) {
+        unsafe {
+            for i in 0..=level {
+                let left = self.search_closest_node(Some((*n).data.as_ref().unwrap()), i);
+                (*n).set_right((*left).get_right(i), i);
+                (*left).set_right(Some(n), i);
+            }
+        }
+    }
 
-                // Move insert_node down until `next` is not less than the new
-                // node.
-                while let Some(next) = (*node).links[level] {
-                    if index_sum + (*node).length_links[level] < 0 {
-                        // insert at front
-                        index_sum += (*node).length_links[level];
-                        node = next;
-                        continue;
+    fn search_closest_node(&self, value: Option<&T>, minlevel: usize) -> *mut SkipNode<T> {
+        unsafe {
+            let mut n: *mut SkipNode<T> = mem::transmute_copy(&self.head);
+
+            for i in (minlevel..=self.level).rev() {
+                loop {
+                    if let Some(right) = (*n).get_right(i) {
+                        match value.cmp(&(*n).data.as_ref()) {
+                            std::cmp::Ordering::Greater => n = right,
+                            _ => {}
+                        }
                     } else {
                         break;
                     }
                 }
-                // The node level is really just how many links it has. If we've
-                // reached the node level, insert it in the links:
-                // ```
-                // Before:    [0] ------------> [1]
-                // After:     [0] --> [new] --> [1]
-                // ```
-                if level <= new_node.level {
-                    insert_nodes.push(node);
-                    new_node.links[level] = (*node).links[level];
-                    (*node).links[level] = Some(new_node_ptr);
-                } else {
-                    (*node).length_links[level] += 1;
-                }
             }
+            n
         }
     }
 }
