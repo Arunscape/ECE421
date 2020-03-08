@@ -5,6 +5,7 @@ use rand::{rngs::ThreadRng, thread_rng, Rng};
 #[derive(Clone, Debug)]
 pub struct SkipList<T> {
     head: Box<SkipNode<T>>,
+    last: Option<Box<SkipNode<T>>>,
     level: usize,
     length: usize,
     level_generator: LevelGenerator,
@@ -43,7 +44,6 @@ impl RandomLevel for LevelGenerator {
 }
 
 impl<D> SkipNode<D> {
-    // TODO initialize next and back
     pub fn new(data: D, level: usize) -> Self {
         SkipNode {
             data: Some(data),
@@ -73,11 +73,24 @@ impl<D> SkipNode<D> {
             None => None,
         }
     }
+    pub fn get_left(&self, level: usize) -> Option<*mut SkipNode<D>> {
+        match self.backwards.get(level) {
+            Some(&ptr) => ptr,
+            None => None,
+        }
+    }
     pub fn set_right(&mut self, n: Option<*mut SkipNode<D>>, level: usize) {
         if let Some(_) = self.forwards.get(level) {
             self.forwards[level] = n;
         } else {
             self.forwards.insert(level, n);
+        }
+    }
+    pub fn set_left(&mut self, n: Option<*mut SkipNode<D>>, level: usize) {
+        if let Some(_) = self.backwards.get(level) {
+            self.backwards[level] = n;
+        } else {
+            self.backwards.insert(level, n);
         }
     }
 }
@@ -99,6 +112,7 @@ impl<T: cmp::Ord> SkipList<T> {
     pub fn new() -> Self {
         SkipList {
             head: Box::new(SkipNode::give_head(1)),
+            last: None,
             length: 0,
             level: 0,
             level_generator: LevelGenerator::new(),
@@ -115,6 +129,35 @@ impl<T: cmp::Ord> SkipList<T> {
                 let new_node = Box::new(SkipNode::new(value, 0));
                 let new_node_ptr: *mut SkipNode<T> = mem::transmute_copy(&new_node);
                 (*self.head).forwards.push(Some(new_node_ptr));
+                return;
+            }
+
+            let level = self.level_generator.random_level();
+            if self.level < level {
+                self.level = level
+            }
+
+            // make the head have an appropriate number of levels
+            while (*self.head).forwards.len() - 1 < level {
+                (*self.head).forwards.push(None);
+            }
+
+            let new_node = Box::new(SkipNode::new(value, level));
+            let new_node_ptr: *mut SkipNode<T> = mem::transmute_copy(&new_node);
+            self.update_list_pointers(new_node_ptr, level);
+        }
+    }
+
+    pub fn push_back(&mut self, value: T) {
+        // add an element with value T (strat from the end of the skiplist).
+        unsafe {
+            self.length += 1;
+
+            // first insertion
+            if self.length == 0 {
+                let new_node = Box::new(SkipNode::new(value, 0));
+                let new_node_ptr: *mut SkipNode<T> = mem::transmute_copy(&new_node);
+                (*self.head).backwards.push(Some(new_node_ptr));
                 return;
             }
 
@@ -161,6 +204,46 @@ impl<T: cmp::Ord> SkipList<T> {
                 }
             }
             n
+        }
+    }
+
+    fn search_closest_node_back(&self, value: Option<&T>, minlevel: usize) -> *mut SkipNode<T> {
+        unsafe {
+            let mut n: *mut SkipNode<T> = mem::transmute_copy(self.last.as_ref().unwrap());
+            if self.last.is_none() {
+                return n;
+            }
+
+            for i in (minlevel..=self.level).rev() {
+                loop {
+                    if let Some(left) = (*n).get_left(i) {
+                        match value.cmp(&(*n).data.as_ref()) {
+                            std::cmp::Ordering::Less => n = left,
+                            _ => {}
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+            n
+        }
+    }
+}
+
+impl<T> fmt::Display for SkipList<T>
+where
+    T: fmt::Display + fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        unsafe {
+            let mut n: *mut SkipNode<T> = mem::transmute_copy(&self.head);
+
+            while let Some(_) = (*n).forwards[0] {
+                write!(f, "{:?}", (*n).data);
+                n = (*n).forwards[0].unwrap();
+            }
+            Ok(())
         }
     }
 }

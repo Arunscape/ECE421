@@ -77,6 +77,20 @@ where
     }
 }
 
+/*EXPLANATION OF THE CONS FUNCTION
+ * Cons is short for the work 'construct'.
+ * This function is used in many Lisp dialects, its purpose is to take two items
+ * and return a pair of those items. Pairs can also be contained in other pairs.
+ * This allows for lists to be easily created using the following syntax (or something similar):
+ * (cons 1 (cons 2 (cons 3 nil)))
+ * for the im library, the cons function takes in two items, and returns a List
+ * struct, as defined by the library itself.
+ * using this implementation in rust, a list can easily be made using the
+ * following syntax:
+ * cons(1, cons(2, cons(3, List::new())))
+*/
+
+// A more in-depth explanation is found below:
 // from: https://docs.rs/im/5.0.0/src/im/list.rs.html#83
 /*
 The words `car` and `cdr` come from Lisp, and were the original
@@ -102,3 +116,51 @@ elements dropped. Pronunciation goes like this: `cadr` is, obviously,
 `cdr` of the `cdr`) is 'cadudder'. It can get a little subtle for the
 untrained ear.
 */
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    pub fn macro_test() {
+        assert_eq!(
+            LinkedList {
+                list: cons(1, cons(2, cons(3, cons(5, cons(7, List::new()))))),
+            },
+            linkedlist! {1=>2=>3=>5=>7}
+        );
+    }
+
+    #[test]
+    pub fn push() {
+        let list = linkedlist! {2=>3=>5=>7};
+        let list = list.push(1);
+        assert_eq!(linkedlist! {1=>2=>3=>5=>7}, list);
+    }
+
+    #[test]
+    pub fn push_back() {
+        let list = linkedlist! {2=>3=>5=>7};
+        let list = list.push_back(1);
+        assert_eq!(linkedlist! {2=>3=>5=>7=>1}, list);
+    }
+
+    #[test]
+    fn it_works() {
+        let mut l = LinkedList::new(3);
+        l = l.push(4);
+        assert_eq!(
+            l,
+            LinkedList {
+                list: cons(4, cons(3, List::new())),
+            }
+        );
+
+        l = l.push_back(2);
+        assert_eq!(
+            l,
+            LinkedList {
+                list: cons(4, cons(3, cons(2, List::new()))),
+            }
+        );
+    }
+}
