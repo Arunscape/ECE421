@@ -111,15 +111,19 @@ insert into transactions (u_from, u_to, t_date, t_amount) values
         let (c, u) = setup!();
         u.pay("Matt", "Dave", 9000);
 
-        let mut statement = c.prepare("select * from transactions").unwrap();
+        let mut statement = c
+            .prepare(
+                "select * from transactions where u_from=? and u_to=? and t_date=? and t_amount=?",
+            )
+            .unwrap();
+        let date: &str = &Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+        statement.bind(1, "Matt").unwrap();
+        statement.bind(2, "Dave").unwrap();
+        statement.bind(3, date).unwrap();
+        statement.bind(4, 9000).unwrap();
 
-        if let State::Row = statement.next().unwrap() {
-            let now = Utc::now();
-            let date = statement.read::<String>(2).unwrap();
-            println!("date = {}", date);
-            assert_eq!(now.format("%Y-%m-%d %H:%M:%S").to_string(), date);
-        } else {
+        if let State::Done = statement.next().unwrap() {
             panic!("new transaction not found");
-        };
+        }
     }
 }
