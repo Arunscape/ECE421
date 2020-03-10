@@ -32,20 +32,68 @@ impl Trie {
                 value: None,
             });
         }
+        if let Some(_) = current_node.value {
+            self.len -= 1; // already exists
+        }
         current_node.value = Some(value);
     }
 
     fn length(&self) -> usize {
         self.len
     }
-}
 
-impl Iterator for Trie{
-    fn next (&mut self) -> 
-   match self.root.chs.len() {
-    0 => None,
-    _ => 
-   } 
+    fn iter(&self) -> impl Iterator<Item = (String, i32)> {
+        fn recurse_children(n: &TrieNode, s: &mut String, hashmap: &mut HashMap<String, i32>) {
+            n.chs.iter().for_each(|(character, node)| match n.value {
+                Some(v) => {
+                    hashmap.insert(s.to_string(), v);
+                    recurse_children(node, s, hashmap);
+                }
+                None => {
+                    s.push(*character);
+                    recurse_children(node, s, hashmap);
+                }
+            })
+        }
+        let mut hm: HashMap<String, i32> = HashMap::new();
+        recurse_children(&self.root, &mut String::new(), &mut hm);
+
+        hm.into_iter()
+    }
+
+    fn find(&self, key: &str) -> Option<&TrieNode> {
+        fn recurse_children<'a>(n: &'a TrieNode, key: &str) -> Option<&'a TrieNode> {
+            if key == "" {
+                Some(n)
+            } else {
+                let (start, rest) = key.split_at(1);
+                n.chs
+                    .get(&start.chars().next().unwrap())
+                    .and_then(|x| recurse_children(x, rest))
+            }
+        }
+        recurse_children(&self.root, key)
+    }
+
+    fn delete(&mut self, key: &str) -> Option<i32> {
+        fn recurse_children<'a>(n: &mut TrieNode, key: &str) -> Option<i32> {
+            if key == "" {
+                let ret = n.value;
+                n.value = None;
+                ret
+            } else {
+                let (start, rest) = key.split_at(1);
+                n.chs
+                    .get_mut(&start.chars().next().unwrap())
+                    .and_then(|x| recurse_children(x, rest))
+            }
+        }
+        let res = recurse_children(&mut self.root, key);
+        if res.is_some() {
+            self.len -= 1;
+        }
+        res
+    }
 }
 
 pub fn main() {
@@ -56,11 +104,66 @@ pub fn main() {
 }
 
 #[cfg(test)]
-#[test]
-fn q3_test() {
-    let mut trie = Trie::new();
-    trie.add_string("B".to_string(), 1);
-    trie.add_string("Bar".to_string(), 2);
+mod test {
+    use super::*;
+    #[test]
+    fn length() {
+        let mut trie = Trie::new();
+        trie.add_string("B".to_string(), 1);
+        trie.add_string("Bar".to_string(), 2);
+        trie.add_string("Bar".to_string(), 2);
 
-    assert_eq!(2, trie.length());
+        assert_eq!(2, trie.length());
+    }
+
+    #[test]
+    fn iter() {
+        let expected: Vec<(String, i32)> = vec![
+            ("one".into(), 1),
+            ("two".into(), 2),
+            ("three".into(), 3),
+            ("four".into(), 4),
+        ];
+        let mut t = Trie::new();
+        expected
+            .iter()
+            .for_each(|(s, v)| t.add_string(s.clone(), *v));
+
+        assert!(t.iter().zip(expected.iter()).all(|(a, b)| a == *b));
+    }
+
+    #[test]
+    fn find() {
+        let expected: Vec<(String, i32)> = vec![
+            ("one".into(), 1),
+            ("two".into(), 2),
+            ("three".into(), 3),
+            ("four".into(), 4),
+        ];
+        let mut t = Trie::new();
+        expected
+            .iter()
+            .for_each(|(s, v)| t.add_string(s.clone(), *v));
+
+        assert_eq!(3, t.find("three").unwrap().value.unwrap());
+        assert!(t.find("does not exist").is_none());
+    }
+
+    #[test]
+    fn delete() {
+        let expected: Vec<(String, i32)> = vec![
+            ("one".into(), 1),
+            ("two".into(), 2),
+            ("three".into(), 3),
+            ("four".into(), 4),
+        ];
+        let mut t = Trie::new();
+        expected
+            .iter()
+            .for_each(|(s, v)| t.add_string(s.clone(), *v));
+
+        assert_eq!(3, t.delete("three").unwrap());
+        assert!(t.find("three").unwrap().value.is_none());
+        assert_eq!(3, t.length());
+    }
 }

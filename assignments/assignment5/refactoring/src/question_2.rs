@@ -54,6 +54,7 @@ pub fn foo(text: &str, string: &str) -> Vec<L> {
         .map(|(x, y)| L { x, y })
         .collect()
 }
+//TODO write 3 versions of this for question 2
 
 pub fn main() {
     let results = foo(TEXT, "the");
