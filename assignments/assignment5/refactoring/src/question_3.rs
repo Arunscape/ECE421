@@ -109,11 +109,12 @@ mod test {
     #[test]
     fn length() {
         let mut trie = Trie::new();
-        trie.add_string("B".to_string(), 1);
+        trie.add_string("Foo".to_string(), 1);
         trie.add_string("Bar".to_string(), 2);
-        trie.add_string("Bar".to_string(), 2);
+        trie.add_string("Baz".to_string(), 2);
+        trie.add_string("Baz".to_string(), 2);
 
-        assert_eq!(2, trie.length());
+        assert_eq!(3, trie.length());
     }
 
     #[test]
