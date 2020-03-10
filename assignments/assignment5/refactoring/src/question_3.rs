@@ -24,7 +24,6 @@ impl Trie {
     }
 
     fn add_string(&mut self, string: String, value: i32) {
-        self.len += 1;
         let mut current_node = &mut self.root;
         for c in string.chars() {
             current_node = current_node.chs.entry(c).or_insert(TrieNode {
@@ -32,8 +31,8 @@ impl Trie {
                 value: None,
             });
         }
-        if let Some(_) = current_node.value {
-            self.len -= 1; // already exists
+        if current_node.value.is_none() {
+            self.len += 1;
         }
         current_node.value = Some(value);
     }
@@ -109,11 +108,14 @@ mod test {
     #[test]
     fn length() {
         let mut trie = Trie::new();
+        assert_eq!(0, trie.length());
         trie.add_string("Foo".to_string(), 1);
+        assert_eq!(1, trie.length());
         trie.add_string("Bar".to_string(), 2);
+        assert_eq!(2, trie.length());
         trie.add_string("Baz".to_string(), 2);
+        assert_eq!(3, trie.length());
         trie.add_string("Baz".to_string(), 2);
-
         assert_eq!(3, trie.length());
     }
 
@@ -146,8 +148,8 @@ mod test {
             .iter()
             .for_each(|(s, v)| t.add_string(s.clone(), *v));
 
-        assert_eq!(3, t.find("three").unwrap().value.unwrap());
-        assert!(t.find("does not exist").is_none());
+        assert_eq!(3, t.find(&"three".to_owned()).unwrap().value.unwrap());
+        assert!(t.find(&"does not exist".to_owned()).is_none());
     }
 
     #[test]
@@ -164,7 +166,7 @@ mod test {
             .for_each(|(s, v)| t.add_string(s.clone(), *v));
 
         assert_eq!(3, t.delete(&"three".to_owned()).unwrap());
-        assert!(t.find("three").unwrap().value.is_none());
+        assert!(t.find(&"three".to_owned()).unwrap().value.is_none());
         assert_eq!(3, t.length());
     }
 }
