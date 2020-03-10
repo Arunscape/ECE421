@@ -18,43 +18,42 @@ When in eternal lines to time thou growest:
 So long as men can breathe or eyes can see,
 So long lives this and this gives life to thee.";
 
-/// The function foo takes in two string slices.
-/// The first string slice is meant to be multiple lines of text, while the
-/// second string slice is meant to be a substring that may or may not appear
-/// in one or more lines of the first string slice. In the example given, the
-/// first string slice is an exerpt from Shakespeare, while the second string
-/// slice is the word "the".
-///
-/// For each line in the first string slice, if the second string slice is found
-/// within the first string slice, the function foo will print the line number
-/// in which the second string slice was found, and also the position in that
-/// line in which the second string slice was found.
-///
-/// For example, in the first line "Shall I compare thee to a summer's day?",
-/// The line number is 0, and the substring "the" is found at position 16
-/// within this line. So, x: 0, y: 16 will be printed out.
-///
-/// If no substring match is found on a given line, nothing is printed out.
-///
-/// The full output for the example is:
-/// ```
-/// x : 0, y : 16
-/// x : 2, y : 21
-/// x : 4, y : 18
-/// x : 12, y : 23
-/// x : 13, y : 42
-/// ```
-pub fn foo(text: &str, string: &str) -> Vec<L> {
-    text.lines()
+/// used iterators to get rid of the need to manually keep track of the line number
+pub fn question_2a(text: &str, string: &str) -> Vec<L> {
+    let mut r = Vec::new();
+    for (line_number, line) in text.lines().enumerate() {
+        for (match_position, _) in line.match_indices(string) {
+            r.push(L {
+                x: line_number,
+                y: match_position,
+            })
+        }
+    }
+    r
+}
+
+/// using map to get rid of the need to manually update the r vector
+pub fn question_2b(text: &str, string: &str) -> Vec<L> {
+    let r: Vec<L> = text
+        .lines()
         .enumerate()
-        .flat_map(|(line_number, line)| {
+        .map(|(line_number, line)| {
             line.match_indices(string)
                 .map(move |(match_position, _)| (line_number, match_position))
         })
+        .flatten()
         .map(|(x, y)| L { x, y })
+        .collect();
+    r
+}
+
+/// question 2c get rid of let statements
+pub fn foo(text: &str, string: &str) -> Vec<L> {
+    text.lines()
+        .enumerate()
+        .flat_map(|(x, line)| line.match_indices(string).map(move |(y, _)| L { x, y }))
         .collect()
 }
-//TODO write 3 versions of this for question 2
 
 pub fn main() {
     let results = foo(TEXT, "the");
@@ -64,15 +63,45 @@ pub fn main() {
 }
 
 #[cfg(test)]
-#[test]
-fn q2_test() {
-    let expected = vec![
-        L { x: 0, y: 16 },
-        L { x: 2, y: 21 },
-        L { x: 4, y: 18 },
-        L { x: 12, y: 23 },
-        L { x: 13, y: 42 },
-    ];
+mod test {
+    use super::*;
 
-    assert_eq!(expected, foo(TEXT, "the"));
+    #[test]
+    fn foo_test() {
+        let expected = vec![
+            L { x: 0, y: 16 },
+            L { x: 2, y: 21 },
+            L { x: 4, y: 18 },
+            L { x: 12, y: 23 },
+            L { x: 13, y: 42 },
+        ];
+
+        assert_eq!(expected, foo(TEXT, "the"));
+    }
+
+    #[test]
+    fn q2a() {
+        let expected = vec![
+            L { x: 0, y: 16 },
+            L { x: 2, y: 21 },
+            L { x: 4, y: 18 },
+            L { x: 12, y: 23 },
+            L { x: 13, y: 42 },
+        ];
+
+        assert_eq!(expected, question_2a(TEXT, "the"));
+    }
+
+    #[test]
+    fn q2b() {
+        let expected = vec![
+            L { x: 0, y: 16 },
+            L { x: 2, y: 21 },
+            L { x: 4, y: 18 },
+            L { x: 12, y: 23 },
+            L { x: 13, y: 42 },
+        ];
+
+        assert_eq!(expected, question_2b(TEXT, "the"));
+    }
 }

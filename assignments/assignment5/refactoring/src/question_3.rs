@@ -61,7 +61,7 @@ impl Trie {
         hm.into_iter()
     }
 
-    fn find(&self, key: &str) -> Option<&TrieNode> {
+    fn find(&self, key: &String) -> Option<&TrieNode> {
         fn recurse_children<'a>(n: &'a TrieNode, key: &str) -> Option<&'a TrieNode> {
             if key == "" {
                 Some(n)
@@ -75,7 +75,7 @@ impl Trie {
         recurse_children(&self.root, key)
     }
 
-    fn delete(&mut self, key: &str) -> Option<i32> {
+    fn delete(&mut self, key: &String) -> Option<i32> {
         fn recurse_children<'a>(n: &mut TrieNode, key: &str) -> Option<i32> {
             if key == "" {
                 let ret = n.value;
@@ -163,7 +163,7 @@ mod test {
             .iter()
             .for_each(|(s, v)| t.add_string(s.clone(), *v));
 
-        assert_eq!(3, t.delete("three").unwrap());
+        assert_eq!(3, t.delete(&"three".to_owned()).unwrap());
         assert!(t.find("three").unwrap().value.is_none());
         assert_eq!(3, t.length());
     }

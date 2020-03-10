@@ -8,6 +8,7 @@ fn main() {
 
     println!("\nQuesion 2 output:");
     question_2::main();
+
     println!("\nQuesion 3 output:");
     question_3::main();
 }
