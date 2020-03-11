@@ -56,8 +56,7 @@ impl UserBase {
         let conn = sqlite::open(&self.fname)?;
         let hpass = bcrypt::hash(p_word, DEFAULT_COST)?;
         let mut st = conn.prepare("insert into users(u_name, p_word) values (?,?);")?;
-        st.bind(1, u_name)?;
-        st.bind(2, &hpass as &str)?;
+        bind!(st, u_name, &hpass as &str);
         st.next()?;
         Ok(())
     }
@@ -67,9 +66,7 @@ impl UserBase {
             "insert into transactions (u_from, u_to, t_date,
 t_amount) values(?,?,datetime(\"now\"),?);",
         )?;
-        st.bind(1, u_from)?;
-        st.bind(2, u_to)?;
-        st.bind(3, amount)?;
+        bind!(st, u_from, u_to, amount);
         st.next()?;
         Ok(())
     }
