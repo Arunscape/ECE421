@@ -12,7 +12,9 @@ use std::error::Error;
 
 macro_rules! bind {
     // Empty case to end the recursion
-    ($st:ident, $n:expr ;) => {};
+    ($st:ident, $n:expr ;) => {
+        // $st.next()?;
+    };
     // Match the current count, the current type, and whatever else comes after
     ($st:ident, $n:expr ; $x:expr $(, $rest:expr)*) => {
         $st.bind($n, $x)?;
@@ -56,9 +58,7 @@ impl UserBase {
         let conn = sqlite::open(&self.fname)?;
         let hpass = bcrypt::hash(p_word, DEFAULT_COST)?;
         let mut st = conn.prepare("insert into users(u_name, p_word) values (?,?);")?;
-        st.bind(1, u_name)?;
-        st.bind(2, &hpass as &str)?;
-        st.next()?;
+        bind!(st, u_name, &hpass as &str);
         Ok(())
     }
     pub fn pay(&self, u_from: &str, u_to: &str, amount: i64) -> Result<(), UBaseErr> {
@@ -67,10 +67,7 @@ impl UserBase {
             "insert into transactions (u_from, u_to, t_date,
 t_amount) values(?,?,datetime(\"now\"),?);",
         )?;
-        st.bind(1, u_from)?;
-        st.bind(2, u_to)?;
-        st.bind(3, amount)?;
-        st.next()?;
+        bind!(st, u_from, u_to, amount);
         Ok(())
     }
 
@@ -164,10 +161,17 @@ insert into transactions (u_from, u_to, t_date, t_amount) values
     #[test]
     fn add_user() -> Result<(), UBaseErr> {
         let (c, u) = setup!();
-        u.add_user("new user", "new password").unwrap();
+        u.add_user("new user", "new password")?;
 
         let mut st = c.prepare("select * from users where u_name=?")?;
         bind!(st, "new user");
+
+        while let s = st.next().unwrap() {
+            if s == State::Done {
+                break;
+            }
+            println!("REEEEE {:?}", s);
+        }
 
         assert_result_from_db!(st, "new user was not created in the db");
         Ok(())
