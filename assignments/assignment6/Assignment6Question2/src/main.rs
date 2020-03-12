@@ -55,6 +55,7 @@ fn main() -> Result<(), Error> {
                     "Wrong password!, Aborting Transaction...",
                 )),
             }?;
+
             println!(
                 "Successful transaction. {} sent ${} to {}.",
                 from, amount, to
@@ -71,9 +72,11 @@ fn main() -> Result<(), Error> {
 
             match valid {
                 true => {
-                    let balance = u.get_balance(username)?;
-                    println!("Your balance is ${}", balance);
-                    Ok(())
+                    let balance = u.get_balance(username).map_err(|e| Error::from(e));
+                    if let Ok(b) = balance {
+                        println!("Your balance is ${}", b);
+                    }
+                    balance
                 }
                 false => Err(Error::WrongPassword("Wrong password!, Aborting...")),
             }?;
@@ -88,10 +91,9 @@ fn main() -> Result<(), Error> {
             let valid = u.login(username, &password)?;
 
             match valid {
-                true => {
-                    u.get_transaction_history(username)?;
-                    Ok(())
-                }
+                true => u
+                    .get_transaction_history(username)
+                    .map_err(|e| Error::from(e)),
                 false => Err(Error::WrongPassword("Wrong password!, Aborting...")),
             }?;
         }

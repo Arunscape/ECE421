@@ -1,4 +1,4 @@
-pub const DB: &'static str = "../data/users.db";
+pub const DB: &'static str = "data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 
 pub struct UserBase {
