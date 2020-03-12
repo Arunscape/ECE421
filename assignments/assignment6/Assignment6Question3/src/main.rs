@@ -27,8 +27,10 @@ fn main() -> Result<(), Error> {
         ("new", Some(n)) => {
             // these are required arguments, so they should never panic
             let username = n.value_of("username").expect("Could not parse username");
-            let password = n.value_of("password").expect("Could not parse password");
-            println!("Creating user...");
+            let password = n
+                .value_of("password")
+                .expect("Could not parse password")
+                .as_bytes();
             u.add_user(username, password)?;
         }
         ("transfer", Some(t)) => {
@@ -41,10 +43,11 @@ fn main() -> Result<(), Error> {
 
             let password =
                 rpassword::read_password_from_tty(Some("Please input your password: ")).unwrap();
+            let password = password.as_bytes();
 
             println!("Verifying password...");
 
-            let valid = u.login(from, &password)?;
+            let valid = u.login(from, password)?;
 
             match valid {
                 true => {
@@ -64,10 +67,11 @@ fn main() -> Result<(), Error> {
             let username = b.value_of("username").expect("Could not parse username");
             let password =
                 rpassword::read_password_from_tty(Some("Please input your password: ")).unwrap();
+            let password = password.as_bytes();
 
             println!("Verifying password...");
 
-            let valid = u.login(username, &password)?;
+            let valid = u.login(username, password)?;
 
             match valid {
                 true => {
@@ -82,10 +86,11 @@ fn main() -> Result<(), Error> {
             let username = b.value_of("username").expect("Could not parse username");
             let password =
                 rpassword::read_password_from_tty(Some("Please input your password: ")).unwrap();
+            let password = password.as_bytes();
 
             println!("Verifying password...");
 
-            let valid = u.login(username, &password)?;
+            let valid = u.login(username, password)?;
 
             match valid {
                 true => {
@@ -100,4 +105,3 @@ fn main() -> Result<(), Error> {
     }
     Ok(())
 }
-

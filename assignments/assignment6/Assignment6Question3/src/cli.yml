@@ -1,0 +1,131 @@
+name: Assignment6Question2
+version: 0.0.1
+about: Command Line Interface for the Bank Application
+author: Arun Wosaree <arun@woosaree.xyz>
+
+# AppSettings can be defined as a list and are **not** ascii case sensitive
+settings:
+    - ArgRequiredElseHelp
+
+# All Args must be defined in the 'args:' list where the name of the arg, is the
+# key to a Hash object
+args:
+    # The name of this argument, is 'opt' which will be used to access the value
+    # later in your Rust code
+    # - opt:
+    #     help: example option argument from yaml
+    #     short: o
+    #     long: option
+    #     multiple: true
+    #     takes_value: true
+    #- pos:
+    #    help: example positional argument from yaml
+    #    index: 1
+    #    # A list of possible values can be defined as a list
+    #    possible_values:
+    #        - fast
+    #        - slow
+    #- flag:
+    #    help: demo flag argument
+    #    short: F
+    #    multiple: true
+    #    global: true
+    #    # Conflicts, mutual overrides, and requirements can all be defined as a
+    #    # list, where the key is the name of the other argument
+    #    conflicts_with:
+    #        - opt
+    #    requires:
+    #        - pos
+    #- mode:
+    #    long: mode
+    #    help: shows an option with specific values
+    #    # possible_values can also be defined in this list format
+    #    possible_values: [ vi, emacs ]
+    #    takes_value: true
+    #- mvals:
+    #    long: mult-vals
+    #    help: demos an option which has two named values
+    #    # value names can be described in a list, where the help will be shown
+    #    # --mult-vals <one> <two>
+    #    value_names:
+    #        - one
+    #        - two
+    #- minvals:
+    #    long: min-vals
+    #    multiple: true
+    #    help: you must supply at least two values to satisfy me
+    #    min_values: 2
+    #- maxvals:
+    #    long: max-vals
+    #    multiple: true
+    #    help: you can only supply a max of 3 values for me!
+    #    max_values: 3
+
+# All subcommands must be listed in the 'subcommand:' object, where the key to
+# the list is the name of the subcommand, and all settings for that command are
+# are part of a Hash object
+subcommands:
+    - new:
+        about: Add a new user to the Bank Database
+        version: 0.0.1
+        args:
+          #- scopt:
+          #    short: B
+          #    multiple: true
+          #    help: example subcommand option
+          #    takes_value: true
+          - username:
+              help: the new username to be added
+              index: 1
+              required: true
+          - password:
+              help: the new user's password
+              index: 2
+              required: true
+    - transfer:
+        version: 0.0.1
+        about: Add a transaction to the Bank Database
+        args:
+          - from:
+              help: Username of the sender
+              index: 1
+              required: true
+          - to:
+              help: Username of the reciever
+              index: 2
+              required: true
+          - amount:
+              help: The amount to send (should be a number)
+              index: 3
+              required: true
+    - balance:
+        version: 0.0.1
+        about: Look up the balance of a user
+        args:
+          - username:
+              help: Username of the sender
+              index: 1
+              required: true
+    - history:
+        version: 0.0.1
+        about: Look up the transaction history of a user
+        args:
+          - username:
+              help: Username of the person you would like to see the transaction history of
+              index: 1
+              required: true
+
+# ArgGroups are supported as well, and must be specified in the 'groups:'
+# object of this file
+#groups:
+#    # the name of the ArgGoup is specified here
+#    - min-max-vals:
+#        # All args and groups that are a part of this group are set here
+#        args:
+#            - minvals
+#            - maxvals
+#        # setting conflicts is done the same manner as setting 'args:'
+#        #
+#        # to make this group required, you could set 'required: true' but for
+#        # this example we won't do that.
+#

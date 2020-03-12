@@ -1,11 +1,11 @@
-pub const DB: &'static str = "../data/users.db";
+pub const DB: &'static str = "data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
+const SALT: &[u8;100] = b"P@dTM!jRSi9sXDHtYF@9hvBxQKnq#xYwdZbkM5A0z$H4P7wKnJsBcIs1jTPl&Epi97sZ@8mU%EQloSqZypo8k!6&ELylGa8TmmQS";
 
 pub struct UserBase {
     pub fname: String,
 }
-
-use bcrypt::{verify, BcryptError, DEFAULT_COST};
+use argon2::{self, Config};
 use chrono::NaiveDateTime;
 use sqlite::Error as SqErr;
 
@@ -24,7 +24,7 @@ macro_rules! bind {
 #[derive(Debug)]
 pub enum UBaseErr {
     DbErr(SqErr),
-    HashError(BcryptError),
+    HashError(argon2::Error),
     TimeParseError(chrono::ParseError),
     OtherError(String),
 }
@@ -34,8 +34,8 @@ impl From<SqErr> for UBaseErr {
         UBaseErr::DbErr(s)
     }
 }
-impl From<BcryptError> for UBaseErr {
-    fn from(b: BcryptError) -> Self {
+impl From<argon2::Error> for UBaseErr {
+    fn from(b: argon2::Error) -> Self {
         UBaseErr::HashError(b)
     }
 }
@@ -51,11 +51,12 @@ impl From<String> for UBaseErr {
 }
 
 impl UserBase {
-    pub fn add_user(&self, u_name: &str, p_word: &str) -> Result<(), UBaseErr> {
+    pub fn add_user(&self, u_name: &str, p_word: &[u8]) -> Result<(), UBaseErr> {
         let conn = sqlite::open(&self.fname)?;
-        let hpass = bcrypt::hash(p_word, DEFAULT_COST)?;
+        let hpass: &str = &argon2::hash_encoded(p_word, SALT, &Config::default())?;
         let mut st = conn.prepare("insert into users(u_name, p_word, balance) values (?,?,?);")?;
-        bind!(st, u_name, &hpass as &str, 0);
+
+        bind!(st, u_name, hpass, 0);
         st.next()?;
         Ok(())
     }
@@ -133,7 +134,7 @@ t_amount) values(?,?,datetime(\"now\"),?);",
         Ok(())
     }
 
-    pub fn login(&self, uname: &str, password: &str) -> Result<bool, UBaseErr> {
+    pub fn login(&self, uname: &str, password: &[u8]) -> Result<bool, UBaseErr> {
         let conn = sqlite::open(&self.fname)?;
         let mut st = conn.prepare("select p_word from users where u_name=?;")?;
         bind!(st, uname);
@@ -142,7 +143,7 @@ t_amount) values(?,?,datetime(\"now\"),?);",
         let hash = st.read::<String>(0);
 
         match hash {
-            Ok(h) => verify(password, &h).map_err(|e| UBaseErr::from(e)),
+            Ok(h) => argon2::verify_encoded(&h, password).map_err(|e| UBaseErr::from(e)),
             _ => Err(UBaseErr::OtherError("The username you entered does not exist in the database, or the password was incorrect".to_string())),
         }
     }
@@ -218,7 +219,7 @@ insert into transactions (u_from, u_to, t_date, t_amount) values
     #[test]
     fn add_user() -> Result<(), UBaseErr> {
         let (c, u) = setup!();
-        u.add_user("new user", "new password").unwrap();
+        u.add_user("new user", "new password".as_bytes()).unwrap();
 
         let mut st = c.prepare("select * from users where u_name=? and balance=?")?;
         bind!(st, "new user", 0);
