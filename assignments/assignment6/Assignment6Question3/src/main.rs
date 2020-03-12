@@ -31,6 +31,8 @@ fn main() -> Result<(), Error> {
                 .value_of("password")
                 .expect("Could not parse password")
                 .as_bytes();
+
+            println!("Creating user...");
             u.add_user(username, password)?;
         }
         ("transfer", Some(t)) => {
