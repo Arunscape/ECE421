@@ -106,6 +106,14 @@ subcommands:
               help: Username of the sender
               index: 1
               required: true
+    - history:
+        version: 0.0.1
+        about: Look up the transaction history of a user
+        args:
+          - username:
+              help: Username of the person you would like to see the transaction history of
+              index: 1
+              required: true
 
 # ArgGroups are supported as well, and must be specified in the 'groups:'
 # object of this file
