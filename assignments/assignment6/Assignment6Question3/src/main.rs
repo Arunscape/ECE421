@@ -93,10 +93,9 @@ fn main() -> Result<(), Error> {
             let valid = u.login(username, password)?;
 
             match valid {
-                true => {
-                    u.get_transaction_history(username)?;
-                    Ok(())
-                }
+                true => u
+                    .get_transaction_history(username)
+                    .map_err(|e| Error::from(e)),
                 false => Err(Error::WrongPassword("Wrong password!, Aborting...")),
             }?;
         }
