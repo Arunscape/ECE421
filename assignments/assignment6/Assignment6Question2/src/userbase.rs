@@ -1,12 +1,6 @@
 pub const DB: &'static str = "data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 
-macro_rules! userbase {
-    () => {
-        UserBase { fname: DB.into() }
-    };
-}
-
 pub struct UserBase {
     pub fname: String,
 }
@@ -185,7 +179,7 @@ insert into transactions (u_from, u_to, t_date, t_amount) values
 
     macro_rules! setup {
         () => {
-            (db!(), userbase!())
+            (UserBase { fname: DB.into() }, userbase!())
         };
     }
     macro_rules! assert_result_from_db {

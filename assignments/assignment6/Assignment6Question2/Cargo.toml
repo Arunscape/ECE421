@@ -1,6 +1,6 @@
 [package]
-name = "Assignment6Question2"
-version = "0.1.0"
+name = "assignment_6_question2"
+version = "0.0.1"
 authors = ["Arunscape <8227297+Arunscape@users.noreply.github.com>"]
 edition = "2018"
 
