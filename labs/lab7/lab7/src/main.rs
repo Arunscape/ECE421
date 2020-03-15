@@ -2,11 +2,17 @@ mod chebyshev_distance;
 mod euclidean_distance;
 mod manhattan_distance;
 mod part2;
+mod part3;
+
 use std::io::{self, Write};
 
 fn main() {
     println!("Part 2 output:");
     part2::main();
+
+    println!("\n\nRunning Part 3...");
+    part3::main();
+
     println!("\n\nStarting CLI for computing distance...");
     user_input();
 }
