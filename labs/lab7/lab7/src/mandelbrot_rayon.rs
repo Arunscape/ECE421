@@ -88,6 +88,6 @@ pub fn main() -> Result<()> {
         let (x, y, pixel) = rx.recv()?;
         img.put_pixel(x, y, pixel);
     }
-    let _ = img.save("mandelbrot.png");
+    let _ = img.save("mandelbrot_rayon.png");
     Ok(())
 }
