@@ -1,8 +1,11 @@
 mod chebyshev_distance;
 mod euclidean_distance;
+mod julia;
+mod julia_rayon;
+mod mandelbrot;
+mod mandelbrot_rayon;
 mod manhattan_distance;
 mod part2;
-mod part3;
 
 use std::io::{self, Write};
 
@@ -11,7 +14,14 @@ fn main() {
     part2::main();
 
     println!("\n\nRunning Part 3...");
-    part3::main();
+    println!("Generating julia set: julia.png...");
+    julia::main().unwrap();
+    println!("Generating julia set using rayon crate: julia_rayon.png...");
+    julia_rayon::main().unwrap();
+    mandelbrot::main().unwrap();
+    println!("Generating mandelbrot set: mandelbrot.png...");
+    mandelbrot_rayon::main().unwrap();
+    println!("Generating mandelbrot set using rayon crate: mandelbrot_rayon.png...");
 
     println!("\n\nStarting CLI for computing distance...");
     user_input();
@@ -53,9 +63,9 @@ fn user_input() {
 
         println!(
             "What kind of distance do you want to calculate?
-               (1) Euclidean
-               (2) Manhattan
-               (3) Chebyshev"
+(1) Euclidean
+(2) Manhattan
+(3) Chebyshev"
         );
         let choice = read_number();
         if choice.is_none() {

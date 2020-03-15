@@ -1,15 +1,19 @@
+/* Not much had to be changed to use te rayon crate, since rayon exposes
+* its own threadpool.
+* The threadpool was initialized with
+   rayon::ThreadPoolBuilder::default().build().unwrap();
+* And then, instead of execute(), rayon calls it install()
+*/
 use error_chain::error_chain;
 
 use image;
 use num;
-use num_cpus;
-use threadpool;
 
 use image::{ImageBuffer, Pixel, Rgb};
 use num::complex::Complex;
 use std::sync::mpsc::{channel, RecvError};
-use threadpool::ThreadPool;
 error_chain! {foreign_links {MpscRecv(RecvError);Io(std::io::Error);}}
+use rayon;
 
 fn wavelength_to_rgb(wavelength: u32) -> Rgb<u8> {
     let wave = wavelength as f32;
@@ -35,14 +39,20 @@ fn wavelength_to_rgb(wavelength: u32) -> Rgb<u8> {
     Rgb::from_channels(r, g, b, 0)
 }
 
-fn julia(c: Complex<f32>, x: u32, y: u32, width: u32, height: u32, max_iter: u32) -> u32 {
+fn mandelbrot(x: u32, y: u32, width: u32, height: u32, max_iter: u32) -> u32 {
     let width = width as f32;
     let height = height as f32;
-    let mut z = Complex {
-        // scale and translate the point to image coordinates
-        re: 3.0 * (x as f32 - 0.5 * width) / width,
-        im: 2.0 * (y as f32 - 0.5 * height) / height,
+    let cxmin = -2f32;
+    let cxmax = 1f32;
+    let cymin = -1.5f32;
+    let cymax = 1.5f32;
+    let scalex = (cxmax - cxmin) / width as f32;
+    let scaley = (cymax - cymin) / height as f32;
+    let c = Complex {
+        re: cxmin + x as f32 * scalex,
+        im: cymin + y as f32 * scaley,
     };
+    let mut z = Complex::new(0f32, 0f32);
     let mut i = 0;
     for t in 0..max_iter {
         if z.norm() >= 2.0 {
@@ -53,6 +63,7 @@ fn julia(c: Complex<f32>, x: u32, y: u32, width: u32, height: u32, max_iter: u32
     }
     i
 }
+
 fn normalize(color: f32, factor: f32) -> u8 {
     ((color * factor).powf(0.8) * 255.) as u8
 }
@@ -61,14 +72,13 @@ pub fn main() -> Result<()> {
     let (width, height) = (1920, 1080);
     let mut img = ImageBuffer::new(width, height);
     let iterations = 300;
-    let c = Complex::new(-0.8, 0.156);
-    let pool = ThreadPool::new(num_cpus::get());
+    let pool = rayon::ThreadPoolBuilder::default().build().unwrap();
     let (tx, rx) = channel();
     for y in 0..height {
         let tx = tx.clone();
-        pool.execute(move || {
+        pool.install(move || {
             for x in 0..width {
-                let i = julia(c, x, y, width, height, iterations);
+                let i = mandelbrot(x, y, width, height, iterations);
                 let pixel = wavelength_to_rgb(380 + i * 400 / iterations);
                 tx.send((x, y, pixel)).expect("Could not send data!");
             }
@@ -78,6 +88,6 @@ pub fn main() -> Result<()> {
         let (x, y, pixel) = rx.recv()?;
         img.put_pixel(x, y, pixel);
     }
-    let _ = img.save("output.png");
+    let _ = img.save("mandelbrot.png");
     Ok(())
 }
