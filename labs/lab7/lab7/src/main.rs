@@ -23,10 +23,12 @@ fn main() {
     mandelbrot_rayon::main().unwrap();
     println!("Generating mandelbrot set using rayon crate: mandelbrot_rayon.png...");
 
+    // Part 1 CLI
     println!("\n\nStarting CLI for computing distance...");
     user_input();
 }
 
+// CLI for part 1
 fn user_input() {
     loop {
         print!("Input the X coordinate of the first point: ");
