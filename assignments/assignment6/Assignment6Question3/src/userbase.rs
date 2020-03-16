@@ -1,4 +1,4 @@
-pub const DB: &'static str = "data/users.db";
+pub const DB: &'static str = "../data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 const SALT: &[u8;100] = b"P@dTM!jRSi9sXDHtYF@9hvBxQKnq#xYwdZbkM5A0z$H4P7wKnJsBcIs1jTPl&Epi97sZ@8mU%EQloSqZypo8k!6&ELylGa8TmmQS";
 
@@ -152,27 +152,26 @@ t_amount) values(?,?,datetime(\"now\"),?);",
 /// run with cargo test -- --nocapture --test-threads=1
 #[cfg(test)]
 mod test {
+    const DB: &'static str = "data/users.db";
     macro_rules! db {
         // `()` indicates that the macro takes no argument.
         () => {
             // The macro will expand into the contents of this block.
             {
-                let connection = sqlite::open(DB).unwrap();
-                connection
-                    .execute(
-                        r#"
+                let connection = sqlite::open(DB)?;
+                connection.execute(
+r#"
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS transactions;
 create table users(u_name text PRIMARY KEY, p_word text, balance integer);
 create table transactions(u_from text, u_to text, t_date integer, t_amount
 text, PRIMARY KEY(u_from,t_date), FOREIGN KEY (u_from) REFERENCES users(u_name),
 FOREIGN KEY (u_to) REFERENCES users(u_name));
-insert into users (u_name, p_word, balance) values ("Matt", "matt_pw", 9000), ("Dave",
-"dave_pw", 0);
+insert into users (u_name, p_word, balance) values ("Matt", "$argon2i$v=19$m=4096,t=3,p=1$UEBkVE0halJTaTlzWERIdFlGQDlodkJ4UUtucSN4WXdkWmJrTTVBMHokSDRQN3dLbkpzQmNJczFqVFBsJkVwaTk3c1pAOG1VJUVRbG9TcVp5cG84ayE2JkVMeWxHYThUbW1RUw$tpw0aKmUgjdWZhBBCOJWn3E1l9Nf7VGSnBD8aNtQe+c", 9000), ("Dave",
+"$argon2i$v=19$m=4096,t=3,p=1$UEBkVE0halJTaTlzWERIdFlGQDlodkJ4UUtucSN4WXdkWmJrTTVBMHokSDRQN3dLbkpzQmNJczFqVFBsJkVwaTk3c1pAOG1VJUVRbG9TcVp5cG84ayE2JkVMeWxHYThUbW1RUw$KkX0dRXjsCHzrn4wjD9pWdgolLe/Ku9m2yKLo9v6uQ0", 0);
 insert into transactions (u_from, u_to, t_date, t_amount) values
 ("Dave","Matt",datetime("now"),50);"#,
-                    )
-                    .unwrap();
+                )?;
                 connection
             }
         };

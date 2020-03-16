@@ -1,4 +1,4 @@
-pub const DB: &'static str = "data/users.db";
+pub const DB: &'static str = "../data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 
 pub struct UserBase {
@@ -151,12 +151,13 @@ t_amount) values(?,?,datetime(\"now\"),?);",
 /// run with cargo test -- --nocapture --test-threads=1
 #[cfg(test)]
 mod test {
+    const DB: &'static str = "data/users.db";
     macro_rules! db {
         // `()` indicates that the macro takes no argument.
         () => {
             // The macro will expand into the contents of this block.
             {
-                let connection = sqlite::open(DB).unwrap();
+                let connection = sqlite::open(DB)?;
                 connection
                     .execute(
                         r#"
@@ -166,12 +167,11 @@ create table users(u_name text PRIMARY KEY, p_word text, balance integer);
 create table transactions(u_from text, u_to text, t_date integer, t_amount
 text, PRIMARY KEY(u_from,t_date), FOREIGN KEY (u_from) REFERENCES users(u_name),
 FOREIGN KEY (u_to) REFERENCES users(u_name));
-insert into users (u_name, p_word, balance) values ("Matt", "matt_pw", 9000), ("Dave",
-"dave_pw", 0);
+insert into users (u_name, p_word, balance) values ("Matt", "$2b$12$G2CzVjrSjO4XmVPZs0NOPuod1mc85AyQZiZhwpTF/s6ewkJI2e6PS", 9000), ("Dave",
+"$2b$12$rLnbrOTpTyRWZwxHmKhlQeRp/uPke9JmRJRPUUL5nVSOWfXLRbMt6", 0);
 insert into transactions (u_from, u_to, t_date, t_amount) values
 ("Dave","Matt",datetime("now"),50);"#,
-                    )
-                    .unwrap();
+                    )?;
                 connection
             }
         };
