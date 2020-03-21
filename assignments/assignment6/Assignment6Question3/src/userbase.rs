@@ -1,4 +1,4 @@
-pub const DB: &'static str = "../data/users.db";
+pub const DB: &'static str = "data/users.db";
 const DATE_FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
 const SALT: &[u8;100] = b"P@dTM!jRSi9sXDHtYF@9hvBxQKnq#xYwdZbkM5A0z$H4P7wKnJsBcIs1jTPl&Epi97sZ@8mU%EQloSqZypo8k!6&ELylGa8TmmQS";
 
